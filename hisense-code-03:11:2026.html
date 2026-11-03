@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VIDAA Glass OS</title>
+  <!-- Police condensée haute précision pour l'horloge style iOS / Glassmorphism -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --glass-text: rgba(255, 255, 255, 0.78);
+      --glass-stroke: rgba(255, 255, 255, 0.45);
+      --dock-radius: 22px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #0b0f14;
+      font-family: 'Inter', sans-serif;
+      color: #ffffff;
+    }
+
+    /* COUCHE 1 : Arrière-plan Paysage Complet */
+    .layer-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      z-index: 1;
+      transition: background-image 0.8s ease-in-out, transform 12s ease-out;
+      transform: scale(1.02);
+    }
+
+    /* Légère vignette pour le contraste des icônes en bas */
+    .layer-vignette {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.18) 0%,
+        rgba(0, 0, 0, 0.0) 40%,
+        rgba(0, 0, 0, 0.45) 88%,
+        rgba(0, 0, 0, 0.72) 100%
+      );
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    /* COUCHE 2 : Date & Horloge Glassmorphism 2.0 (derrière le premier plan) */
+    .clock-container {
+      position: absolute;
+      top: 11%;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      z-index: 2;
+      width: 100%;
+      pointer-events: none;
+    }
+
+    .date-display {
+      font-size: 2.2vw;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      color: rgba(255, 255, 255, 0.95);
+      text-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+      margin-bottom: -1.8vw;
+      position: relative;
+      z-index: 5;
+    }
+
+    .time-display {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 29vw;
+      line-height: 0.88;
+      letter-spacing: 0.01em;
+      /* Effet Glassmorphism 2.0 sur les chiffres */
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.92) 0%,
+        rgba(255, 255, 255, 0.68) 48%,
+        rgba(235, 245, 255, 0.42) 100%
+      );
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      -webkit-text-stroke: 2px var(--glass-stroke);
+      filter: drop-shadow(0 16px 36px rgba(0, 0, 0, 0.35));
+    }
+
+    /* COUCHE 3 : Premier plan du paysage qui passe DEVANT le bas de l'horloge */
+    .layer-fg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      z-index: 3;
+      pointer-events: none;
+      transition: background-image 0.8s ease-in-out, clip-path 0.6s ease;
+      transform: scale(1.02);
+    }
+
+    /* Bouton Paramètres (Haut Droite) */
+    .settings-btn {
+      position: absolute;
+      top: 3.5vh;
+      right: 3vw;
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.16);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1.5px solid rgba(255, 255, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10;
+      transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+      outline: none;
+    }
+
+    .settings-btn svg {
+      width: 26px;
+      height: 26px;
+      fill: #ffffff;
+      transition: transform 0.4s ease;
+    }
+
+    .settings-btn:focus, .settings-btn.focused, .settings-btn:hover {
+      transform: scale(1.15);
+      background: rgba(255, 255, 255, 0.32);
+      border-color: #ffffff;
+      box-shadow: 0 0 25px rgba(255, 255, 255, 0.6);
+    }
+
+    .settings-btn:focus svg, .settings-btn.focused svg {
+      transform: rotate(90deg);
+    }
+
+    /* COUCHE 5 : Dock d'applications en bas */
+    .app-dock {
+      position: absolute;
+      bottom: 4.2vh;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 1.5vw;
+      z-index: 10;
+      padding: 10px 20px;
+    }
+
+    .app-card {
+      width: 11.2vw;
+      height: 6.4vw;
+      min-width: 135px;
+      min-height: 78px;
+      border-radius: var(--dock-radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+      border: 2px solid rgba(255, 255, 255, 0.22);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+      outline: none;
+      overflow: hidden;
+    }
+
+    /* État sélectionné à la télécommande */
+    .app-card:focus, .app-card.focused, .app-card:hover {
+      transform: translateY(-12px) scale(1.09);
+      border: 3px solid #ffffff;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7), 0 0 28px rgba(255, 255, 255, 0.55);
+      z-index: 12;
+    }
+
+    /* Reflet Glassmorphism sur les tuiles */
+    .app-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0) 55%);
+      pointer-events: none;
+    }
+
+    /* Couleurs officielles de vos 7 applications */
+    .app-canal { background: #0a0a0a; }
+    .app-youtube { background: #ffffff; }
+    .app-netflix { background: #e50914; }
+    .app-prime { background: #00a8e1; }
+    .app-disney { background: linear-gradient(145deg, #06153d 0%, #09357a 60%, #0bd3d3 100%); }
+    .app-nba { background: #1d2235; }
+    .app-crunchyroll { background: #f47521; }
+
+    /* Logos vectoriels/typographiques */
+    .logo-canal {
+      font-weight: 900;
+      font-size: 1.55vw;
+      letter-spacing: 1px;
+      color: #fff;
+    }
+    .logo-youtube {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #282828;
+      font-weight: 800;
+      font-size: 1.45vw;
+      letter-spacing: -0.5px;
+    }
+    .logo-netflix {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3.6vw;
+      color: #ffffff;
+      letter-spacing: 2px;
+      text-shadow: 0 4px 10px rgba(0,0,0,0.35);
+    }
+    .logo-prime {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 1.35vw;
+      line-height: 1.05;
+    }
+    .logo-disney {
+      font-weight: 800;
+      font-size: 1.7vw;
+      color: #ffffff;
+      letter-spacing: 0.5px;
+      text-shadow: 0 2px 10px rgba(0,210,255,0.5);
+    }
+    .logo-nba {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.3vw;
+      color: #ffffff;
+      border: 2px solid rgba(255,255,255,0.85);
+      border-radius: 8px;
+      padding: 2px 10px;
+      background: linear-gradient(90deg, #00539f 50%, #d50032 50%);
+    }
+    .logo-crunchy {
+      display: flex;
+       flex-direction: column;
+      align-items: center;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 1.15vw;
+      gap: 4px;
+    }
+
+    /* Notification Toast en haut à gauche */
+    .toast {
+      position: absolute;
+      top: 3.5vh;
+      left: 3vw;
+      background: rgba(15, 20, 28, 0.78);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: 12px 22px;
+      border-radius: 14px;
+      font-size: 1rem;
+      color: #fff;
+      z-index: 30;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Fenêtre Modale Paramètres */
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(12px);
+      z-index: 25;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-box {
+      background: rgba(22, 27, 36, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 24px;
+      padding: 32px;
+      width: 520px;
+      max-width: 90vw;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+    }
+    .modal-box h2 {
+      font-size: 1.4rem;
+      margin-bottom: 16px;
+    }
+    .modal-box p {
+      font-size: 0.92rem;
+      color: rgba(255,255,255,0.75);
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+    .modal-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .modal-btn {
+      padding: 12px 18px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+    }
+    .modal-btn:focus, .modal-btn:hover {
+      background: rgba(255,255,255,0.28);
+      border-color: #fff;
+      outline: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Couche 1 : Arrière-plan Paysage -->
+  <div id="bgLayer" class="layer-bg"></div>
+
+  <!-- Couche 2 : Date & Heure Glassmorphism (Passe sous la crête des montagnes) -->
+  <div class="clock-container">
+    <div id="dateDisplay" class="date-display">Mardi 3 novembre</div>
+    <div id="timeDisplay" class="time-display">13:03</div>
+  </div>
+
+  <!-- Couche 3 : Premier plan découpé (Effet de profondeur devant l'horloge) -->
+  <div id="fgLayer" class="layer-fg"></div>
+
+  <!-- Couche 4 : Vignette douce -->
+  <div class="layer-vignette"></div>
+
+  <!-- Bouton Paramètres (Haut Droite) -->
+  <button id="settingsBtn" class="settings-btn" tabindex="0" title="Paramètres & Changement de fond">
+    <svg viewBox="0 0 24 24">
+      <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+    </svg>
+  </button>
+
+  <!-- Dock Applications Inférieur (Vos 7 applications Hisense) -->
+  <nav id="appDock" class="app-dock">
+    <!-- 1. CANAL+ -->
+    <button class="app-card app-canal" data-app="canalplus" tabindex="0">
+      <span class="logo-canal">CANAL+</span>
+    </button>
+
+    <!-- 2. YouTube -->
+    <button class="app-card app-youtube" data-app="youtube" tabindex="0">
+      <span class="logo-youtube">
+        <svg width="28" height="20" viewBox="0 0 28 20" fill="none">
+          <rect width="28" height="20" rx="5" fill="#FF0000"/>
+          <path d="M11 14.5V5.5L18.5 10L11 14.5Z" fill="white"/>
+        </svg>
+        YouTube
+      </span>
+    </button>
+
+    <!-- 3. NETFLIX -->
+    <button class="app-card app-netflix" data-app="netflix" tabindex="0">
+      <span class="logo-netflix">N</span>
+    </button>
+
+    <!-- 4. Prime Video -->
+    <button class="app-card app-prime" data-app="primevideo" tabindex="0">
+      <div class="logo-prime">
+        <span>prime video</span>
+        <svg width="56" height="14" viewBox="0 0 100 25" fill="none">
+          <path d="M10 8 C35 24, 65 24, 90 8" stroke="white" stroke-width="5" stroke-linecap="round"/>
+          <path d="M83 5 L92 7 L88 16" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </button>
+
+    <!-- 5. Disney+ -->
+    <button class="app-card app-disney" data-app="disneyplus" tabindex="0">
+      <span class="logo-disney">Disney+</span>
+    </button>
+
+    <!-- 6. NBA -->
+    <button class="app-card app-nba" data-app="nba" tabindex="0">
+      <span class="logo-nba">NBA</span>
+    </button>
+
+    <!-- 7. Crunchyroll -->
+    <button class="app-card app-crunchyroll" data-app="crunchyroll" tabindex="0">
+      <div class="logo-crunchy">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.2 15.6c-3.53 0-6.4-2.87-6.4-6.4s2.87-6.4 6.4-6.4c1.38 0 2.65.44 3.69 1.18-.72-.24-1.5-.38-2.31-.38-3.98 0-7.2 3.22-7.2 7.2 0 1.4.4 2.7 1.09 3.81 1.13.63 2.44.99 3.83.99 2.38 0 4.49-1.16 5.79-2.94-.99 1.77-2.89 2.94-5.09 2.94z"/>
+        </svg>
+        <span>Crunchyroll</span>
+      </div>
+    </button>
+  </nav>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Modale de configuration VIDAA -->
+  <div id="settingsModal" class="modal-overlay">
+    <div class="modal-box">
+      <h2>Paramètres VIDAA Glass OS</h2>
+      <p>
+        <strong>TV Hisense :</strong> 192.168.1.116 (MAC : e4:8a:93:93:0e:f3)<br>
+        <strong>DNS AdGuard :</strong> 94.140.14.14 / 94.140.15.15
+      </p>
+      <div class="modal-actions">
+        <button id="btnChangeBg" class="modal-btn">🌄 Changer de paysage maintenant</button>
+        <button id="btnScanApps" class="modal-btn">🔍 Scanner les IDs d'applications natives VIDAA</button>
+        <button id="btnCloseModal" class="modal-btn">✕ Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* =========================================================================
+       1. CONFIGURATION RÉSEAU HISENSE & BASE DES APPLICATIONS (VIDAA OS)
+       ========================================================================= */
+    const HISENSE_CONFIG = {
+      ip: "192.168.1.116",
+      mac: "e4:8a:93:93:0e:f3",
+      mqttPort: 36669
+    };
+
+    const APPS_CONFIG = {
+      canalplus: {
+        name: "CANAL+",
+        appId: "canalplus",
+        altIds: ["mycanal", "com.canal.plus", "canal"],
+        url: "https://www.canalplus.com/"
+      },
+      youtube: {
+        name: "YouTube",
+        appId: "youtube",
+        altIds: ["com.google.android.youtube.tv"],
+        url: "https://www.youtube.com/tv"
+      },
+      netflix: {
+        name: "Netflix",
+        appId: "netflix",
+        altIds: ["com.netflix.ninja"],
+        url: "https://www.netflix.com/title"
+      },
+      primevideo: {
+        name: "Prime Video",
+        appId: "amazon",
+        altIds: ["primevideo", "com.amazon.ignition"],
+        url: "https://www.primevideo.com/"
+      },
+      disneyplus: {
+        name: "Disney+",
+        appId: "disneyplus",
+        altIds: ["disney", "com.disney.disneyplus"],
+        url: "https://www.disneyplus.com/"
+      },
+      nba: {
+        name: "NBA",
+        appId: "nba",
+        altIds: ["nbatv", "com.nba.leaguepass"],
+        url: "https://www.nba.com/watch"
+      },
+      crunchyroll: {
+        name: "Crunchyroll",
+        appId: "crunchyroll",
+        altIds: ["com.crunchyroll.crunchyroid"],
+        url: "https://www.crunchyroll.com/"
+      }
+    };
+
+    /* =========================================================================
+       2. PAYSAGES 4K AVEC MASQUES DE PROFONDEUR (PASSENT DEVANT L'HEURE)
+       Chaque paysage possède son tracé de crête (clipPath) qui recouvre le bas
+       des chiffres de l'horloge exactement comme sur votre photo modèle.
+       ========================================================================= */
+    const LANDSCAPES = [
+      {
+        // Vallée verdoyante brumeuse au lever du soleil (style identique à votre photo)
+        url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=2560&q=85",
+        clip: "polygon(0% 62%, 18% 58%, 34% 63%, 51% 57%, 68% 51%, 84% 46%, 100% 42%, 100% 100%, 0% 100%)"
+      },
+      {
+        // Crêtes des Dolomites dorées
+        url: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2560&q=85",
+        clip: "polygon(0% 54%, 22% 60%, 41% 56%, 58% 49%, 75% 44%, 90% 48%, 100% 43%, 100% 100%, 0% 100%)"
+      },
+      {
+        // Montagnes bleutées au crépuscule
+        url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=2560&q=85",
+        clip: "polygon(0% 64%, 25% 59%, 46% 52%, 62% 47%, 79% 53%, 92% 46%, 100% 44%, 100% 100%, 0% 100%)"
+      },
+      {
+        // Hauts plateaux d'Écosse / Forêt de montagne
+        url: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=2560&q=85",
+        clip: "polygon(0% 60%, 19% 56%, 38% 61%, 56% 54%, 74% 48%, 89% 43%, 100% 40%, 100% 100%, 0% 100%)"
+      },
+      {
+        // Sommets alpins au-dessus des nuages
+        url: "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?auto=format&fit=crop&w=2560&q=85",
+        clip: "polygon(0% 58%, 24% 62%, 45% 55%, 64% 48%, 82% 45%, 100% 41%, 100% 100%, 0% 100%)"
+      }
+    ];
+
+    function applyNextLandscape() {
+      let lastIndex = parseInt(localStorage.getItem("vidaa_bg_idx") || "-1", 10);
+      let nextIndex = (lastIndex + 1) % LANDSCAPES.length;
+      localStorage.setItem("vidaa_bg_idx", nextIndex.toString());
+
+      const theme = LANDSCAPES[nextIndex];
+      const bgLayer = document.getElementById("bgLayer");
+      const fgLayer = document.getElementById("fgLayer");
+
+      bgLayer.style.backgroundImage = `url('${theme.url}')`;
+      fgLayer.style.backgroundImage = `url('${theme.url}')`;
+      fgLayer.style.clipPath = theme.clip;
+      fgLayer.style.webkitClipPath = theme.clip;
+    }
+
+    /* =========================================================================
+       3. HORLOGE & DATE EN FRANÇAIS EN TEMPS RÉEL
+       ========================================================================= */
+    function updateClock() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, "0");
+      const minutes = String(now.getMinutes()).padStart(2, "0");
+      document.getElementById("timeDisplay").textContent = `${hours}:${minutes}`;
+
+      const options = { weekday: "long", day: "numeric", month: "long" };
+      let dateStr = now.toLocaleDateString("fr-FR", options);
+      // Majuscule sur la première lettre du jour (ex: "Samedi 31 octobre")
+      dateStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+      document.getElementById("dateDisplay").textContent = dateStr;
+    }
+
+    /* =========================================================================
+       4. PONT D'OUVERTURE DES APPLICATIONS NATIVES VIDAA OS
+       ========================================================================= */
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 3200);
+    }
+
+    function launchVidaaApp(appKey) {
+      const app = APPS_CONFIG[appKey];
+      if (!app) return;
+
+      showToast(`Ouverture de ${app.name}...`);
+
+      // 1. Pont JavaScript Natif Hisense (actif dans le navigateur VIDAA / hisense://debug)
+      try {
+        if (typeof Hisense_LaunchApp === "function") {
+          Hisense_LaunchApp(app.appId, app.url);
+          return;
+        }
+        if (window.hisense && typeof window.hisense.launchApp === "function") {
+          window.hisense.launchApp(app.appId, app.url);
+          return;
+        }
+      } catch (err) {
+        console.warn("Erreur pont JS Hisense :", err);
+      }
+
+      // 2. Redirection directe vers l'application / interface TV
+      window.location.href = app.url;
+    }
+
+    /* =========================================================================
+       5. NAVIGATION À LA TÉLÉCOMMANDE HISENSE (FLÈCHES + BOUTON OK)
+       ========================================================================= */
+    const cards = Array.from(document.querySelectorAll(".app-card"));
+    const settingsBtn = document.getElementById("settingsBtn");
+    let currentFocusIndex = 1; // Par défaut sur YouTube au démarrage
+    let focusZone = "dock"; // "dock" ou "settings"
+
+    function updateFocus() {
+      cards.forEach(c => c.classList.remove("focused"));
+      settingsBtn.classList.remove("focused");
+
+      if (focusZone === "dock") {
+        const target = cards[currentFocusIndex];
+        if (target) {
+          target.focus();
+          target.classList.add("focused");
+        }
+      } else if (focusZone === "settings") {
+        settingsBtn.focus();
+        settingsBtn.classList.add("focused");
+      }
+    }
+
+    // Clic sur les cartes d'applications
+    cards.forEach((card, idx) => {
+      card.addEventListener("click", () => {
+        currentFocusIndex = idx;
+        focusZone = "dock";
+        updateFocus();
+        launchVidaaApp(card.dataset.app);
+      });
+    });
+
+    // Gestion de la modale Paramètres
+    const modal = document.getElementById("settingsModal");
+    settingsBtn.addEventListener("click", () => {
+      modal.classList.add("active");
+      document.getElementById("btnChangeBg").focus();
+    });
+
+    document.getElementById("btnChangeBg").addEventListener("click", () => {
+      applyNextLandscape();
+      showToast("Nouveau paysage chargé !");
+    });
+
+    document.getElementById("btnScanApps").addEventListener("click", () => {
+      if (typeof Hisense_GetInstalledApps === "function") {
+        Hisense_GetInstalledApps((res) => alert("Apps VIDAA : " + JSON.stringify(res)));
+      } else {
+        showToast("Mode standard actif (Ouvrez hisense://debug pour l'accès bas niveau)");
+      }
+    });
+
+    document.getElementById("btnCloseModal").addEventListener("click", () => {
+      modal.classList.remove("active");
+      focusZone = "dock";
+      updateFocus();
+    });
+
+    // Écoute des touches de la télécommande Hisense
+    window.addEventListener("keydown", (e) => {
+      if (modal.classList.contains("active")) {
+        if (e.key === "Escape" || e.key === "Backspace") {
+          modal.classList.remove("active");
+          focusZone = "dock";
+          updateFocus();
+        }
+        return;
+      }
+
+      if (e.key === "ArrowRight") {
+        if (focusZone === "dock") {
+          currentFocusIndex = (currentFocusIndex + 1) % cards.length;
+          updateFocus();
+        }
+      } else if (e.key === "ArrowLeft") {
+        if (focusZone === "dock") {
+          currentFocusIndex = (currentFocusIndex - 1 + cards.length) % cards.length;
+          updateFocus();
+        }
+      } else if (e.key === "ArrowUp") {
+        focusZone = "settings";
+        updateFocus();
+      } else if (e.key === "ArrowDown") {
+        focusZone = "dock";
+        updateFocus();
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        if (focusZone === "dock") {
+          launchVidaaApp(cards[currentFocusIndex].dataset.app);
+        } else {
+          settingsBtn.click();
+        }
+      }
+    });
+
+    // Initialisation au démarrage de la TV
+    applyNextLandscape();
+    updateClock();
+    setInterval(updateClock, 10000);
+    window.onload = () => updateFocus();
+  </script>
+</body>
+</html>
