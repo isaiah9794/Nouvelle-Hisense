@@ -4,10 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>VIDAA Glass OS</title>
-  <!-- Police fine et élancée pour l'horloge Glassmorphism 2.0 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@200;300;400&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@200;300;400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
     :root {
@@ -30,7 +29,7 @@
       color: #ffffff;
     }
 
-    /* COUCHE 1 : Arrière-plan Paysage 4K */
+    /* Arrière-plan Paysage 4K */
     .layer-bg {
       position: absolute;
       inset: 0;
@@ -42,7 +41,7 @@
       transform: scale(1.01);
     }
 
-    /* COUCHE 2 : Date & Horloge fine en Glassmorphism 2.0 */
+    /* Date & Horloge fine Glassmorphism 2.0 */
     .clock-container {
       position: absolute;
       top: 13.5vh;
@@ -85,7 +84,7 @@
       filter: drop-shadow(0 10px 28px rgba(0, 0, 0, 0.28));
     }
 
-    /* COUCHE 3 : Canvas de profondeur (fait passer le relief devant le bas de l'heure) */
+    /* Canvas de profondeur (relief devant l'horloge) */
     #fgCanvas {
       position: absolute;
       inset: 0;
@@ -96,7 +95,7 @@
       transform: scale(1.01);
     }
 
-    /* COUCHE 4 : Légère vignette en bas pour faire ressortir les applications */
+    /* Vignette douce en bas */
     .layer-vignette {
       position: absolute;
       inset: 0;
@@ -111,7 +110,7 @@
       pointer-events: none;
     }
 
-    /* COUCHE 5 : Dock des 7 applications officielles */
+    /* Dock des 7 applications officielles */
     .app-dock {
       position: absolute;
       bottom: 4.5vh;
@@ -141,7 +140,6 @@
       overflow: hidden;
     }
 
-    /* Sélection télécommande */
     .app-card:focus, .app-card.focused, .app-card:hover {
       transform: translateY(-12px) scale(1.08);
       border: 3px solid #ffffff;
@@ -149,143 +147,73 @@
       z-index: 12;
     }
 
-    /* Fonds officiels identiques aux tuiles Hisense */
+    /* Arrière-plans officiels par tuile */
     .app-canal { background: #000000; }
     .app-youtube { background: #ffffff; }
     .app-netflix { background: #ffffff; }
     .app-prime { background: linear-gradient(180deg, #1b65f6 0%, #0f4cd1 100%); }
-    .app-disney {
-      background: radial-gradient(circle at 50% 115%, #0ad2d3 0%, #083c75 45%, #040c24 95%);
-    }
+    .app-disney { background: radial-gradient(circle at 50% 115%, #0ad2d3 0%, #083c75 45%, #040c24 95%); }
     .app-nba { background: #1c2033; }
     .app-crunchyroll { background: #f47521; }
 
-    .app-card svg {
-      max-width: 80%;
-      max-height: 72%;
+    .app-card img {
+      max-width: 78%;
+      max-height: 70%;
+      object-fit: contain;
       display: block;
     }
   </style>
 </head>
 <body>
 
-  <!-- Couche 1 : Arrière-plan Paysage -->
   <div id="bgLayer" class="layer-bg"></div>
 
-  <!-- Couche 2 : Date & Heure fine Glassmorphism -->
   <div class="clock-container">
     <div id="dateDisplay" class="date-display">Mardi 3 novembre</div>
-    <div id="timeDisplay" class="time-display">14:12</div>
+    <div id="timeDisplay" class="time-display">14:52</div>
   </div>
 
-  <!-- Couche 3 : Relief de premier plan qui passe devant le bas de l'heure -->
   <canvas id="fgCanvas"></canvas>
-
-  <!-- Couche 4 : Vignette douce -->
   <div class="layer-vignette"></div>
 
-  <!-- Couche 5 : Dock avec les 7 Logos Officiels Hisense -->
   <nav id="appDock" class="app-dock">
-    
-    <!-- 1. CANAL+ (Officiel) -->
+    <!-- 1. CANAL+ -->
     <button class="app-card app-canal" data-app="canalplus" tabindex="0" aria-label="CANAL+">
-      <svg viewBox="0 0 240 60" width="82%">
-        <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle"
-              fill="#ffffff" font-family="'Inter', Arial, sans-serif" font-weight="900"
-              font-size="40" letter-spacing="1.5">CANAL+</text>
-      </svg>
+      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 60'><text x='50%' y='56%' dominant-baseline='middle' text-anchor='middle' fill='%23ffffff' font-family='Arial, sans-serif' font-weight='900' font-size='42' letter-spacing='1'>CANAL+</text></svg>" alt="CANAL+">
     </button>
 
-    <!-- 2. YouTube (Officiel) -->
+    <!-- 2. YouTube -->
     <button class="app-card app-youtube" data-app="youtube" tabindex="0" aria-label="YouTube">
-      <svg viewBox="0 0 230 60" width="80%">
-        <g transform="translate(12, 11)">
-          <rect x="0" y="0" width="54" height="38" rx="9" fill="#FF0000"/>
-          <polygon points="22,11 22,27 36,19" fill="#FFFFFF"/>
-        </g>
-        <text x="74" y="41" fill="#212121" font-family="'Inter', Arial, sans-serif"
-              font-weight="800" font-size="33" letter-spacing="-1.2">YouTube</text>
-      </svg>
+      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 280 60'><g transform='translate(5, 11)'><rect width='54' height='38' rx='9' fill='%23FF0000'/><polygon points='22,11 22,27 36,19' fill='%23FFFFFF'/></g><text x='74' y='41' fill='%23212121' font-family='Arial, sans-serif' font-weight='800' font-size='34' letter-spacing='-1'>YouTube</text></svg>" alt="YouTube">
     </button>
 
-    <!-- 3. NETFLIX (Logo complet officiel en arche sur fond blanc) -->
+    <!-- 3. NETFLIX -->
     <button class="app-card app-netflix" data-app="netflix" tabindex="0" aria-label="Netflix">
-      <svg viewBox="0 0 260 80" width="82%">
-        <text x="50%" y="56%" dominant-baseline="middle" text-anchor="middle"
-              fill="#E50914" font-family="'Barlow Condensed', Impact, sans-serif"
-              font-weight="700" font-size="60" letter-spacing="4">NETFLIX</text>
-      </svg>
+      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 280 80'><text x='50% ' y='57%' dominant-baseline='middle' text-anchor='middle' fill='%23E50914' font-family='Impact, sans-serif' font-weight='700' font-size='62' letter-spacing='3'>NETFLIX</text></svg>" alt="Netflix">
     </button>
 
-    <!-- 4. Prime Video (Logo officiel avec flèche sourire) -->
+    <!-- 4. Prime Video -->
     <button class="app-card app-prime" data-app="primevideo" tabindex="0" aria-label="Prime Video">
-      <svg viewBox="0 0 220 110" width="78%">
-        <text x="50%" y="36" dominant-baseline="middle" text-anchor="middle"
-              fill="#ffffff" font-family="'Inter', Arial, sans-serif"
-              font-weight="800" font-size="30" letter-spacing="-0.5">prime</text>
-        <text x="50%" y="68" dominant-baseline="middle" text-anchor="middle"
-              fill="#ffffff" font-family="'Inter', Arial, sans-serif"
-              font-weight="800" font-size="30" letter-spacing="-0.5">video</text>
-        <path d="M 52 84 Q 110 108 166 84" fill="none" stroke="#ffffff" stroke-width="5.5" stroke-linecap="round"/>
-        <path d="M 155 80 L 169 83 L 163 95" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
+      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 110'><text x='50%' y='35' dominant-baseline='middle' text-anchor='middle' fill='%23ffffff' font-family='Arial, sans-serif' font-weight='800' font-size='30'>prime</text><text x='50%' y='68' dominant-baseline='middle' text-anchor='middle' fill='%23ffffff' font-family='Arial, sans-serif' font-weight='800' font-size='30'>video</text><path d='M 52 84 Q 110 108 166 84' fill='none' stroke='%23ffffff' stroke-width='5.5' stroke-linecap='round'/><path d='M 155 80 L 169 83 L 163 95' fill='none' stroke='%23ffffff' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/></svg>" alt="Prime Video">
     </button>
 
-    <!-- 5. Disney+ (Logo officiel avec arche étoilée) -->
+    <!-- 5. Disney+ -->
     <button class="app-card app-disney" data-app="disneyplus" tabindex="0" aria-label="Disney+">
-      <svg viewBox="0 0 240 110" width="82%">
-        <!-- Arche lumineuse Disney+ -->
-        <path d="M 38 56 Q 115 8 188 52" fill="none" stroke="#7ce8ff" stroke-width="3.2" stroke-linecap="round" opacity="0.9"/>
-        <circle cx="116" cy="28" r="2.8" fill="#ffffff"/>
-        <text x="46%" y="74" dominant-baseline="middle" text-anchor="middle"
-              fill="#ffffff" font-family="Georgia, 'Times New Roman', serif"
-              font-weight="bold" font-style="italic" font-size="42" letter-spacing="0.5">Disney</text>
-        <text x="192" y="72" dominant-baseline="middle" text-anchor="middle"
-              fill="#ffffff" font-family="'Inter', sans-serif"
-              font-weight="700" font-size="36">+</text>
-      </svg>
+      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 110'><path d='M 38 56 Q 115 8 188 52' fill='none' stroke='%237ce8ff' stroke-width='3.2' stroke-linecap='round' opacity='0.9'/><circle cx='116' cy='28' r='2.8' fill='%23ffffff'/><text x='45%' y='74' dominant-baseline='middle' text-anchor='middle' fill='%23ffffff' font-family='Georgia, serif' font-weight='bold' font-style='italic' font-size='42'>Disney</text><text x='192' y='72' dominant-baseline='middle' text-anchor='middle' fill='%23ffffff' font-family='Arial, sans-serif' font-weight='700' font-size='36'>+</text></svg>" alt="Disney+">
     </button>
 
-    <!-- 6. NBA (Badge vertical officiel Bleu/Rouge + Silhouette + NBA) -->
+    <!-- 6. NBA -->
     <button class="app-card app-nba" data-app="nba" tabindex="0" aria-label="NBA">
-      <svg viewBox="0 0 100 160" height="82%">
-        <rect x="14" y="6" width="72" height="148" rx="14" fill="#ffffff"/>
-        <!-- Moitié gauche bleue -->
-        <path d="M 28 10 H 52 V 150 H 28 A 10 10 0 0 1 18 140 V 20 A 10 10 0 0 1 28 10 Z" fill="#00539F"/>
-        <!-- Moitié droite rouge -->
-        <path d="M 52 10 H 72 A 10 10 0 0 1 82 20 V 140 A 10 10 0 0 1 72 150 H 52 V 10 Z" fill="#D50032"/>
-        <!-- Silhouette joueur blanche -->
-        <circle cx="56" cy="26" r="6.5" fill="#ffffff"/>
-        <path d="M 48 34 C 42 40, 38 52, 42 64 L 34 92 L 42 95 L 50 72 L 56 98 L 64 96 L 59 64 C 65 56, 68 46, 60 36 Z" fill="#ffffff"/>
-        <circle cx="69" cy="64" r="6.5" fill="#ffffff"/>
-        <!-- Texte NBA officiel -->
-        <text x="50" y="138" text-anchor="middle" fill="#ffffff"
-              font-family="'Barlow Condensed', Impact, sans-serif" font-weight="700"
-              font-size="34" letter-spacing="1">NBA</text>
-      </svg>
+      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 160'><rect x='14' y='6' width='72' height='148' rx='14' fill='%23ffffff'/><path d='M 28 10 H 52 V 150 H 28 A 10 10 0 0 1 18 140 V 20 A 10 10 0 0 1 28 10 Z' fill='%2300539F'/><path d='M 52 10 H 72 A 10 10 0 0 1 82 20 V 140 A 10 10 0 0 1 72 150 H 52 V 10 Z' fill='%23D50032'/><circle cx='56' cy='26' r='6.5' fill='%23ffffff'/><path d='M 48 34 C 42 40, 38 52, 42 64 L 34 92 L 42 95 L 50 72 L 56 98 L 64 96 L 59 64 C 65 56, 68 46, 60 36 Z' fill='%23ffffff'/><circle cx='69' cy='64' r='6.5' fill='%23ffffff'/><text x='50' y='138' text-anchor='middle' fill='%23ffffff' font-family='Impact, sans-serif' font-weight='700' font-size='34' letter-spacing='1'>NBA</text></svg>" alt="NBA">
     </button>
 
-    <!-- 7. Crunchyroll (Spirale officielle + Texte) -->
+    <!-- 7. Crunchyroll -->
     <button class="app-card app-crunchyroll" data-app="crunchyroll" tabindex="0" aria-label="Crunchyroll">
-      <svg viewBox="0 0 240 115" width="84%">
-        <!-- Emblème Spirale Crunchyroll -->
-        <g transform="translate(120, 40)">
-          <path d="M 0 -26 A 26 26 0 1 0 26 0 A 22 22 0 1 1 -4 -21" fill="#ffffff"/>
-          <circle cx="4" cy="2" r="13" fill="#f47521"/>
-          <circle cx="7" cy="4" r="9.5" fill="#ffffff"/>
-        </g>
-        <text x="50%" y="95" dominant-baseline="middle" text-anchor="middle"
-              fill="#ffffff" font-family="'Inter', Arial, sans-serif"
-              font-weight="800" font-size="25" letter-spacing="-0.4">Crunchyroll</text>
-      </svg>
+      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 115'><g transform='translate(120, 40)'><path d='M 0 -26 A 26 26 0 1 0 26 0 A 22 22 0 1 1 -4 -21' fill='%23ffffff'/><circle cx='4' cy='2' r='13' fill='%23f47521'/><circle cx='7' cy='4' r='9.5' fill='%23ffffff'/></g><text x='50%' y='95' dominant-baseline='middle' text-anchor='middle' fill='%23ffffff' font-family='Arial, sans-serif' font-weight='800' font-size='25' letter-spacing='-0.4'>Crunchyroll</text></svg>" alt="Crunchyroll">
     </button>
-
   </nav>
 
   <script>
-    /* =========================================================================
-       1. CONFIGURATION DES APPLICATIONS NATIVES VIDAA OS (192.168.1.116)
-       ========================================================================= */
     const APPS_CONFIG = {
       canalplus:   { appId: "canalplus",   url: "https://www.canalplus.com/" },
       youtube:     { appId: "youtube",     url: "https://www.youtube.com/tv" },
@@ -296,58 +224,25 @@
       crunchyroll: { appId: "crunchyroll", url: "https://www.crunchyroll.com/" }
     };
 
-    /* =========================================================================
-       2. LES 20 PAYSAGES 4K (Montagne, Vallée, Forêt, Mer, Plage, Espace, Désert)
-       ========================================================================= */
+    // Les 15 paysages 4K sélectionnés (sans les 5 que vous avez retirés)
     const LANDSCAPES = [
-      // 1. Vallée & sapins au lever du jour
       "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=2560&q=85",
-      // 2. Crêtes des Dolomites
       "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2560&q=85",
-      // 3. Montagnes bleutées nocturnes
       "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=2560&q=85",
-      // 4. Forêt brumeuse de montagne
       "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=2560&q=85",
-      // 5. Sommets alpins au-dessus des nuages
       "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?auto=format&fit=crop&w=2560&q=85",
-      // 6. Plage sauvage & falaises dorées
       "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2560&q=85",
-      // 7. Mer turquoise & falaises côtières
       "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=2560&q=85",
-      // 8. Espace : Voie Lactée au-dessus des sommets
       "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=2560&q=85",
-      // 9. Espace & Aurores boréales sur fjord
       "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?auto=format&fit=crop&w=2560&q=85",
-      // 10. Vallée verdoyante & montagnes d'Islande
-      "https://images.unsplash.com/photo-1504893524553-b855bce32c67?auto=format&fit=crop&w=2560&q=85",
-      // 11. Forêt de conifères dans la brume dorée
-      "https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=2560&q=85",
-      // 12. Plage tropicale & rochers au crépuscule
       "https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=2560&q=85",
-      // 13. Dunes du désert au coucher du soleil
       "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=2560&q=85",
-      // 14. Lac glaciaire & reflets de montagnes
-      "https://images.unsplash.com/photo-1439066615861-d1af74d74000?auto=format&fit=crop&w=2560&q=85",
-      // 15. Espace : Nébuleuse & horizon cosmique
       "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=2560&q=85",
-      // 16. Canyon rougeoyant au soleil levant
-      "https://images.unsplash.com/photo-1474044159687-1ee9f3a51722?auto=format&fit=crop&w=2560&q=85",
-      // 17. Mer & vagues océaniques au crépuscule
       "https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=2560&q=85",
-      // 18. Fjord norvégien & sommets escarpés
-      "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=2560&q=85",
-      // 19. Forêt d'automne & vallée alpine
       "https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=2560&q=85",
-      // 20. Mer de nuages & crête volcanique
       "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=2560&q=85"
     ];
 
-    /* =========================================================================
-       3. MOTEUR DE PROFONDEUR AUTOMATIQUE (Détecte le relief devant l'horloge)
-       Analyse la luminance du ciel et détourne uniquement les éléments du premier
-       plan (montagnes, arbres, rochers, horizon) pour qu'ils passent devant le bas
-       des chiffres sans jamais créer de ligne de coupure artificielle.
-       ========================================================================= */
     function renderDepthForeground(imageUrl) {
       const canvas = document.getElementById("fgCanvas");
       const ctx = canvas.getContext("2d");
@@ -358,8 +253,6 @@
       img.crossOrigin = "anonymous";
       img.onload = () => {
         ctx.clearRect(0, 0, w, h);
-
-        // Calcul du cadrage "background-size: cover"
         const scale = Math.max(w / img.width, h / img.height);
         const drawW = img.width * scale;
         const drawH = img.height * scale;
@@ -372,7 +265,6 @@
           const imgData = ctx.getImageData(0, 0, w, h);
           const data = imgData.data;
 
-          // Mesure la luminosité moyenne du ciel en haut au centre (zone de l'heure)
           let skyLumaSum = 0;
           let count = 0;
           const sampleYStart = Math.floor(h * 0.12);
@@ -397,17 +289,14 @@
             for (let x = 0; x < w; x++) {
               const i = (y * w + x) * 4;
               if (y < topCut) {
-                data[i + 3] = 0; // Totalement transparent sur le haut des chiffres
+                data[i + 3] = 0;
               } else {
                 const luma = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
                 const diff = threshold - luma;
                 if (diff > 0) {
-                  // C'est un élément de relief sombre (arbre, montagne, rocher) -> passe devant l'heure
                   const verticalFade = Math.min(1, (y - topCut) / (h * 0.06));
-                  const edgeAlpha = Math.min(255, diff * 9 * verticalFade);
-                  data[i + 3] = edgeAlpha;
+                  data[i + 3] = Math.min(255, diff * 9 * verticalFade);
                 } else {
-                  // C'est le ciel -> reste derrière l'heure
                   data[i + 3] = 0;
                 }
               }
@@ -431,9 +320,6 @@
       renderDepthForeground(url);
     }
 
-    /* =========================================================================
-       4. HORLOGE & DATE EN FRANÇAIS
-       ========================================================================= */
     function updateClock() {
       const now = new Date();
       const hours = String(now.getHours()).padStart(2, "0");
@@ -446,24 +332,15 @@
       document.getElementById("dateDisplay").textContent = dateStr;
     }
 
-    /* =========================================================================
-       5. LANCEMENT DES APPLICATIONS & NAVIGATION TÉLÉCOMMANDE
-       ========================================================================= */
     function launchVidaaApp(appKey) {
       const app = APPS_CONFIG[appKey];
       if (!app) return;
-
       try {
         if (typeof Hisense_LaunchApp === "function") {
           Hisense_LaunchApp(app.appId, app.url);
           return;
         }
-        if (window.hisense && typeof window.hisense.launchApp === "function") {
-          window.hisense.launchApp(app.appId, app.url);
-          return;
-        }
       } catch (e) {}
-
       window.location.href = app.url;
     }
 
@@ -500,12 +377,6 @@
       }
     });
 
-    window.addEventListener("resize", () => {
-      const idx = parseInt(localStorage.getItem("vidaa_bg_idx") || "0", 10);
-      renderDepthForeground(LANDSCAPES[idx]);
-    });
-
-    // Initialisation
     applyNextLandscape();
     updateClock();
     setInterval(updateClock, 10000);
